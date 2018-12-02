@@ -1,0 +1,78 @@
+<!-- component template -->
+<template>
+  <div class="page">
+    <div class="navbar">
+      <div class="navbar-inner">
+        <div class="left">
+          <a class="link back">
+            <i class="icon icon-back"></i>
+            <span class="ios-only">Back</span>
+          </a>
+        </div>
+        <div class="title">{{product.generic_name}}</div>
+      </div>
+    </div>
+    <div class="page-content">
+      <div style="padding:10px">
+        <a href="#" class="button button-fill" @click="add_fav">Ajouter aux favoris</a>
+        <p>{{product.ingredients_text_fr}}</p>
+        <img src="{{product.image_front_url}}" width="100%" alt="">
+      </div>
+
+
+    </div>
+  </div>
+</template>
+<!-- component styles -->
+<style>
+
+</style>
+<!-- rest of component data and methods -->
+<script>
+  // script must return component object
+  return {
+    data: function () {
+      return {
+        product: {},
+      }
+    },
+    methods: {
+      add_fav: function () {
+        var self = this
+        app.request({
+          url: "https://foxxy.ovh/_db/ema_api/api/favorites",
+          method: "POST",
+          headers: {
+            "X-Session-Id": window.localStorage.getItem("jwt")
+          },
+          data: JSON.stringify({
+            code: self.$route.params.id,
+            title: self.product.generic_name,
+            image: self.product.image_front_url
+          }),
+          success: function () {
+            app.dialog.alert('Added successfully');
+          }
+        })
+      }
+    },
+    on: {
+      pageInit: function () {
+        // do something on page init
+        var self = this
+        var id = this.$route.params.id
+        var url = "https://fr.openfoodfacts.org/api/v1/produit/" + id + ".json"
+        app.request.json(url, function (data) {
+          console.log(data)
+          self.$setState({
+            product: data.product
+          })
+        })
+      },
+      pageAfterOut: function () {
+        // page has left the view
+
+      },
+    }
+  }
+</script>

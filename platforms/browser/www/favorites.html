@@ -1,0 +1,89 @@
+<!-- component template -->
+<template>
+  <div class="page">
+    <div class="navbar">
+      <div class="navbar-inner">
+        <div class="left">
+          <a class="link back">
+            <i class="icon icon-back"></i>
+            <span class="ios-only">Back</span>
+          </a>
+        </div>
+        <div class="title">My Favorites</div>
+      </div>
+    </div>
+    <div class="page-content">
+      <div class="list">
+        <ul>
+          {{#each favorites}}
+          <li class="swipeout">
+            <div class="item-content swipeout-content">
+              <div class="item-media">
+                  <img src="{{image}}" height="30" alt="">
+                </div>
+              <div class="item-inner">
+                <div class="item-title">
+                  <a href="/product/{{code}}">{{title}}</a></div>
+              </div>
+            </div>
+            <div class="swipeout-actions-right">
+              <a href="#" class="swipeout-delete" @click="delete" data-id="{{code}}">Delete</a>
+            </div>
+          </li>
+          {{/each}}
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</template>
+<!-- component styles -->
+<style>
+
+</style>
+<!-- rest of component data and methods -->
+<script>
+  // script must return component object
+  return {
+    data: function () {
+      return {
+        favorites: [],
+      }
+    },
+    methods: {
+      delete: function (e) {
+        var id = $$(e.srcElement).data("id")
+        app.request({
+          method: "DELETE",
+          url: "https://foxxy.ovh/_db/ema_api/api/favorites/" + id,
+          headers: {
+            "X-Session-Id": window.localStorage.getItem("jwt")
+          },
+          success: function (data) {
+            console.log("deleted")
+          }
+        })
+      }
+    },
+    on: {
+      pageInit: function () {
+        // do something on page init
+        var self = this
+        app.request({
+          url: "https://foxxy.ovh/_db/ema_api/api/favorites",
+          headers: {
+            "X-Session-Id": window.localStorage.getItem("jwt")
+          },
+          success: function (data) {
+            self.$setState({
+              favorites: JSON.parse(data)
+            })
+          }
+        })
+      },
+      pageAfterOut: function () {
+        // page has left the view
+      },
+    }
+  }
+</script>
